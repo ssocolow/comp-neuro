@@ -463,3 +463,53 @@ def fano_factor(spikes, T0, T1, bin_size):
     # Evaluate fano factor
     ff = np.std(counts) ** 2 / np.mean(counts)
     return ff
+
+
+def gaussian(x, s):
+    """
+    Function that takes in values x and standard deviation s to determine Gaussian distribution function
+
+    Parameters
+    ----------
+    x : np.ndarray
+        x-values to evaluate guassian at each point
+    s : float
+        standard deviation for the gaussian distribution function
+
+    Returns
+    -------
+    np.ndarray
+        gaussian function evaluated with parameter s at values of x
+    """
+    return (1 / (np.sqrt(2 * np.pi) * s)) * np.exp(-(x**2) / (2 * s**2))
+
+
+def gauss_kernel(values, spacing, bandwidth=25 / 1000):
+    """
+    Function performs a simplified convolution with gaussian kernel.
+
+    Parameters
+    -----------
+    values : np.ndarray
+        array of values to evaluate SDF at, should be spikes
+    spacing : np.ndarray
+        grid to compute SDF at, should be a desired domain
+    bandwidth : float
+        (optional) bandwidth of gaussian kernel, default is 25/1000
+
+    Returns
+    -------
+    np.ndarray
+        Spike density function with gaussian kernel
+    """
+    # Cast inputs into numpy arrays
+    values = np.asarray(values)  # spikes
+    spacing = np.asarray(spacing)  # domain of SDF
+
+    # initialize SDF
+    sdf = np.zeros(len(spacing))
+
+    # Perform convolution
+    for j in range(len(values)):
+        sdf += gaussian((spacing - values[j]), bandwidth)
+    return sdf
